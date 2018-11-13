@@ -25,7 +25,7 @@ class OBSControl(MycroftSkill):
         super(OBSControl, self).__init__(name="OBSControl")
 
         # Initialize working variables used within the skill.
-        self.loop = asyncio.new_event_loop()
+        self.loop = None #asyncio.new_event_loop()
         self.count = 0
 
     # The "handle_xxxx_intent" function is triggered by Mycroft when the
@@ -44,9 +44,10 @@ class OBSControl(MycroftSkill):
         # In this case, respond by simply speaking a canned response.
         # Mycroft will randomly speak one of the lines from the file
         #    dialogs/en-us/hello.world.dialog
-        #loop = asyncio.get_event_loop()
+        self.loop = asyncio.new_event_loop()
         self.loop.run_until_complete(displayEnable())
         self.loop.close()
+        self.loop = None
         self.speak_dialog("display.enabled")
 
     @intent_handler(IntentBuilder("").require("Display").require("Disable"))
