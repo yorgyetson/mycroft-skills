@@ -16,6 +16,9 @@ import asyncio
 # Each skill is contained within its own class, which inherits base methods
 # from the MycroftSkill class.  You extend this class as shown below.
 
+from mycroft.util.log import getLogger
+LOGGER = getLogger(__name__)
+LOGGER.warning("this is a test 1235")
 #loop = asyncio.get_event_loop()
 # TODO: Change "Template" to a unique name for your skill
 class OBSControl(MycroftSkill):
@@ -39,7 +42,7 @@ class OBSControl(MycroftSkill):
     #   'Hello world'
     #   'Howdy you great big world'
     #   'Greetings planet earth'
-    @intent_handler(IntentBuilder("").require("Display").require("Enable"))
+    @intent_handler(IntentBuilder("").require("Display").require("Enable").optionally("Something"))
     def handle_display_enable_intent(self, message):
         # In this case, respond by simply speaking a canned response.
         # Mycroft will randomly speak one of the lines from the file
@@ -48,7 +51,15 @@ class OBSControl(MycroftSkill):
         self.loop.run_until_complete(displayEnable())
         self.loop.close()
         self.loop = None
-        self.speak_dialog("display.enabled")
+        #self.speak(message.data.get("Something"))
+        something = message.data.get("Something")
+        LOGGER.warning(something)
+        LOGGER.warning(message.utterance_remainder())
+        if message.utterance_remainder():
+            if message.utterance_remainder() == "all":
+                self.speak_dialog("display.enabled")
+        else:
+            self.speak_dialog("display.disabled")
 
     @intent_handler(IntentBuilder("").require("Display").require("Disable"))
     def handle_display_disabled_intent(self, message):
