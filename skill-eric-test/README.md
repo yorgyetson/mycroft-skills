@@ -1,19 +1,20 @@
-To submit your skill, replace this file with text from 
+To submit your skill, replace this file with text from
 https://rawgit.com/MycroftAI/mycroft-skills/master/meta_editor.html
 
 
 ## YOUR SKILL NAME
-One line description of the skill
+Voice control for OBS
 
-## Description 
-A more verbose description, including any extra instructions or
-information that didn't fit in the one line.
+## Description
+Requires OBS Websocket Plugin
 
-## Examples 
-* "Hello world"
-* "Greetings planet earth"
-* "Count up"
-* "Count down"
+## Examples
+* "Stream Status"
+* "Start Stream"
+* "Start Recording Stream"
+* "Stop Stream"
+* "Stop Recording Stream"
+* "Switch Scene To X"
 
-## Credits 
-Your name
+## Credits
+Eric Belisle 
