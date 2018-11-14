@@ -3,7 +3,9 @@
 import asyncio
 
 from obswsrc import OBSWS
-from obswsrc.requests import ResponseStatus, StartStreamingRequest, GetCurrentSceneRequest, SetSourceRenderRequest
+from obswsrc.requests import (ResponseStatus, GetStreamingStatusRequest,
+    StartStreamingRequest, StopStreamingRequest, StartRecordingRequest,
+    StopRecordingRequest, GetCurrentSceneRequest, SetSourceRenderRequest)
 from obswsrc.types import Stream, StreamSettings
 
 
@@ -39,6 +41,92 @@ async def displayEnable():
                     print(response.error)
         else:
          print(response.error)
+
+
+async def startStream():
+
+    async with OBSWS('192.168.0.4', 4444, "password") as obsws:
+
+        stream = Stream(
+            type="rtmp_custom",
+        )
+
+        response = await obsws.require(StartStreamingRequest(stream=stream))
+
+        # Check if everything is OK
+        if response.status == ResponseStatus.OK:
+            print("success")
+        else:
+            print(response.error)
+
+
+async def stopStream():
+
+    async with OBSWS('192.168.0.4', 4444, "password") as obsws:
+
+        stream = Stream(
+            type="rtmp_custom",
+        )
+
+        response = await obsws.require(StopStreamingRequest())
+
+        # Check if everything is OK
+        if response.status == ResponseStatus.OK:
+            print("success")
+        else:
+            print(response.error)
+
+
+async def startRecording():
+
+    async with OBSWS('192.168.0.4', 4444, "password") as obsws:
+
+        stream = Stream(
+            type="rtmp_custom",
+        )
+
+        response = await obsws.require(StartRecordingRequest())
+
+        # Check if everything is OK
+        if response.status == ResponseStatus.OK:
+            print("success")
+        else:
+            print(response.error)
+
+
+async def stopRecording():
+
+    async with OBSWS('192.168.0.4', 4444, "password") as obsws:
+
+        stream = Stream(
+            type="rtmp_custom",
+        )
+
+        response = await obsws.require(StopRecordingRequest())
+
+        # Check if everything is OK
+        if response.status == ResponseStatus.OK:
+            print("success")
+        else:
+            print(response.error)
+
+
+async def streamStatus():
+
+    async with OBSWS('192.168.0.4', 4444, "password") as obsws:
+
+        stream = Stream(
+            type="rtmp_custom",
+        )
+
+        response = await obsws.require(GetStreamingStatusRequest())
+
+        # Check if everything is OK
+        if response.status == ResponseStatus.OK:
+            return response
+        else:
+            print(response.error)
+            return response
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

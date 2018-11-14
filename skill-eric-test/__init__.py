@@ -11,71 +11,83 @@ from adapt.intent import IntentBuilder
 from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.log import LOG
 
-from .obstest import displayEnable
+from .obstest import (streamStatus, startStream, stopStream, startRecording, stopRecording,
+    displayEnable)
 import asyncio
-# Each skill is contained within its own class, which inherits base methods
-# from the MycroftSkill class.  You extend this class as shown below.
+import json
 
 from mycroft.util.log import getLogger
 LOGGER = getLogger(__name__)
-LOGGER.warning("this is a test 1235")
-#loop = asyncio.get_event_loop()
-# TODO: Change "Template" to a unique name for your skill
+
 class OBSControl(MycroftSkill):
 
     # The constructor of the skill, which calls MycroftSkill's constructor
     def __init__(self):
         super(OBSControl, self).__init__(name="OBSControl")
-
         # Initialize working variables used within the skill.
         self.loop = None #asyncio.new_event_loop()
-        self.count = 0
 
-    # The "handle_xxxx_intent" function is triggered by Mycroft when the
-    # skill's intent is matched.  The intent is defined by the IntentBuilder()
-    # pieces, and is triggered when the user's utterance matches the pattern
-    # defined by the keywords.  In this case, the match occurs when one word
-    # is found from each of the files:
-    #    vocab/en-us/Hello.voc
-    #    vocab/en-us/World.voc
-    # In this example that means it would match on utterances like:
-    #   'Hello world'
-    #   'Howdy you great big world'
-    #   'Greetings planet earth'
-    @intent_handler(IntentBuilder("").require("Display").require("Enable").optionally("Something"))
-    def handle_display_enable_intent(self, message):
-        # In this case, respond by simply speaking a canned response.
-        # Mycroft will randomly speak one of the lines from the file
-        #    dialogs/en-us/hello.world.dialog
+    @intent_handler(IntentBuilder("").require("Stream").require("Start").optionally("Scene"))
+    def handle_stream_start_intent(self, message):
         self.loop = asyncio.new_event_loop()
-        self.loop.run_until_complete(displayEnable())
+        self.loop.run_until_complete(startStream())
         self.loop.close()
         self.loop = None
-        #self.speak(message.data.get("Something"))
-        something = message.data.get("Something")
-        LOGGER.warning(something)
-        LOGGER.warning(message.utterance_remainder())
-        if message.utterance_remainder():
-            if message.utterance_remainder() == "all":
-                self.speak_dialog("display.enabled")
+
+        self.speak_dialog("live.stream.started")
+
+    @intent_handler(IntentBuilder("").require("End").require("Stream"))
+    def handle_stream_end_intent(self, message):
+        self.loop = asyncio.new_event_loop()
+        self.loop.run_until_complete(stopStream())
+        self.loop.close()
+        self.loop = None
+
+        self.speak_dialog("live.stream.ended")
+
+    @intent_handler(IntentBuilder("").require("Start").require("Stream").require("Recording"))
+    def handle_stream_recording_start_intent(self, message):
+        self.loop = asyncio.new_event_loop()
+        self.loop.run_until_complete(startRecording())
+        self.loop.close()
+        self.loop = None
+
+        self.speak_dialog("stream.recording.started")
+
+    @intent_handler(IntentBuilder("").require("End").require("Stream").require("Recording"))
+    def handle_stream_recording_end_intent(self, message):
+        self.loop = asyncio.new_event_loop()
+        self.loop.run_until_complete(stopRecording())
+        self.loop.close()
+        self.loop = None
+
+        self.speak_dialog("stream.recording.ended")
+
+
+    @intent_handler(IntentBuilder("").require("Stream").require("Status"))
+    def handle_stream_status_intent(self, message):
+        self.loop = asyncio.new_event_loop()
+        response = self.loop.run_until_complete(streamStatus())
+
+        if response.streaming == True:
+            streaming = "live"
         else:
-            self.speak_dialog("display.disabled")
+            streaming = "not broadcasting"
 
-    @intent_handler(IntentBuilder("").require("Display").require("Disable"))
-    def handle_display_disabled_intent(self, message):
+        if response.recording == True:
+            recording = "recording"
+        else:
+            recording = "not recording"
 
-        self.speak_dialog("display.disabled")
+        self.loop.close()
+        self.loop = None
+        self.speak_dialog("stream.status", {"recording": recording,
+                                            "streaming": streaming})
 
-    # The "stop" method defines what Mycroft does when told to stop during
-    # the skill's execution. In this case, since the skill's functionality
-    # is extremely simple, there is no need to override it.  If you DO
-    # need to implement stop, you should return True to indicate you handled
-    # it.
-    #
-    # def stop(self):
-    #    return False
 
-# The "create_skill()" method is used to create an instance of the skill.
-# Note that it's outside the class itself.
+    def stop(self):
+        return False
+
+
 def create_skill():
     return OBSControl()
